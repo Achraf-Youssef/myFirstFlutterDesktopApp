@@ -23,4 +23,3 @@ samples, guidance on mobile development, and a full API reference.
     src="https://img.shields.io/badge/fluent-design-blue?style=flat-square&color=7A7574&labelColor=0078D7"
   />
 </a>
->>>>>>> 3c85f203c0f99c1bec7c6e4a47024da9e5aa5bbc:README.md

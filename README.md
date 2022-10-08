@@ -1,4 +1,6 @@
 # flutter_application
+# Required
+## fluent_ui: ^4.0.0
 
 A new Flutter project.
 

@@ -1,4 +1,6 @@
 # flutter_application
+# Required
+## fluent_ui: ^4.0.0
 
 A new Flutter project.
 
@@ -14,3 +16,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+<<<<<<< HEAD:flutter_application/README.md
+=======
+<a title="Made with Fluent Design" href="https://github.com/bdlukaa/fluent_ui">
+  <img
+    src="https://img.shields.io/badge/fluent-design-blue?style=flat-square&color=7A7574&labelColor=0078D7"
+  />
+</a>
+>>>>>>> 3c85f203c0f99c1bec7c6e4a47024da9e5aa5bbc:README.md

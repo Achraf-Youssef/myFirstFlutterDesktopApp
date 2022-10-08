@@ -68,13 +68,14 @@ class _HomePageState extends State<HomePage> {
   String current = "item 1";
   List<String> list = ["item 1", "item 2", "item 3", "item 4"];
   List<Map<String, String>> list_1 = [
-    {"title":"title1", "subtitle":"subtitle1"},
-    ];
+    {"title": "title1", "subtitle": "subtitle1"},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
-      header: (list.isEmpty)? const Center(child: ProgressRing()) : const Text("") ,
+      header:
+          (list.isEmpty) ? const Center(child: ProgressRing()) : const Text(""),
       content: ListView(children: [
         ListTile(
           leading: const Icon(FluentIcons.emoji2),
@@ -163,8 +164,8 @@ class FilesPage extends StatefulWidget {
 
 class _FilesPageState extends State<FilesPage> {
   List<String> list = [
-    "item 1",
-    "item 0",
+    "program 1",
+    "program 2",
   ];
 
   @override
@@ -174,11 +175,43 @@ class _FilesPageState extends State<FilesPage> {
         children: [
           ListTile(
             title: Text(list[0]),
+            trailing: IconButton(
+              icon: const Icon(FluentIcons.delete),
+              onPressed: () {
+                list.remove("program 1");
+              },
+            ),
           ),
           ListTile(
             title: Text(list[1]),
+            trailing: IconButton(
+              icon: const Icon(FluentIcons.delete),
+              onPressed: () {
+                list.remove("program 2");
+              },
+            ),
           ),
         ],
+      ),
+      bottomBar: Container(
+        alignment: Alignment.bottomRight,
+        padding: const EdgeInsets.all(20.0),
+        child: Tooltip(
+          message: 'add new program',
+          child: Button(
+            onPressed: () {
+              debugPrint("Button Clicked!");
+            },
+            style: ButtonStyle(
+              shape: ButtonState.all(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0))),
+              border: ButtonState.all(BorderSide.none),
+              padding: ButtonState.all(const EdgeInsets.all(20.0)),
+              iconSize: ButtonState.all(20.0),
+            ),
+            child: const Icon(FluentIcons.add),
+          ),
+        ),
       ),
     );
   }

@@ -3,13 +3,11 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:firedart/firedart.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_application/program.dart';
-import 'package:flutter_application/task.dart';
 
 void main() {
   Firestore.initialize(projectId);
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
@@ -40,6 +38,8 @@ class HomePage extends StatefulWidget {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -455,7 +455,11 @@ class _SettingsPageState extends State<SettingsPage> {
       content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: []),
+          children: const [
+            Center(
+              child: Text("Nothing Here Yet!"),
+            ),
+          ]),
     );
   }
 }

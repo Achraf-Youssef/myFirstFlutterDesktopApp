@@ -36,6 +36,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentPage = 0;
+  bool checked_1 = false;
 
   @override
   void dispose() {
@@ -61,16 +62,33 @@ class _HomeState extends State<Home> {
       transitionBuilder: (child, animation) =>
           EntrancePageTransition(animation: animation, child: child),
       appBar: NavigationAppBar(
-        title: const Text('NavigationView'),
-        actions: ToggleSwitch(
-          checked: _themeManager.themeMode == ThemeMode.dark,
-          onChanged: (v) {
-            _themeManager.toggleTheme(v);
-            debugPrint("Theme Has Changed");
-          },
-          content: const Text("Dark Mode"),
-        ),
-      ),
+          title: const Text('NavigationView'),
+          actions: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ToggleSwitch(
+                checked: checked_1,
+                onChanged: (v) => setState(() {
+                  checked_1 = v;
+                  if (checked_1) {
+                    debugPrint("Concentration Mode Activated!");
+                  } else {
+                    debugPrint("Concentration Mode Deactivated!");
+                  }
+                }),
+                content: const Text("Concentration Mode"),
+              ),
+              ToggleSwitch(
+                checked: _themeManager.themeMode == ThemeMode.dark,
+                onChanged: (v) {
+                  _themeManager.toggleTheme(v);
+                  debugPrint("Theme Has Changed");
+                },
+                content: const Text("Dark Mode"),
+              ),
+            ],
+          )),
       pane: NavigationPane(
         selected: _currentPage,
         displayMode: PaneDisplayMode.compact,
@@ -439,20 +457,7 @@ class _SettingsPageState extends State<SettingsPage> {
       content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ToggleSwitch(
-              checked: checked_1,
-              onChanged: (v) => setState(() {
-                checked_1 = v;
-                if (checked_1) {
-                  debugPrint("Concentration Mode Activated!");
-                } else {
-                  debugPrint("Concentration Mode Deactivated!");
-                }
-              }),
-              content: const Text("Concentration Mode"),
-            ),
-          ]),
+          children: []),
     );
   }
 }

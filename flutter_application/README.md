@@ -1,6 +1,8 @@
 # flutter_application
 # Required
 ## fluent_ui: ^4.0.0
+## file_picker: ^5.2.0+1
+## firedart: ^0.9.0+1
 
 A new Flutter project.
 

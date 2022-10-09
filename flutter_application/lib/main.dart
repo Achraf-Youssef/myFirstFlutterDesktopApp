@@ -1,4 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_application/program.dart';
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 
 void main() {
   runApp(FluentApp(
@@ -163,34 +166,51 @@ class FilesPage extends StatefulWidget {
 }
 
 class _FilesPageState extends State<FilesPage> {
-  List<String> list = [
-    "program 1",
-    "program 2",
-  ];
+  List<Program> programList = [];
+
+  void _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      dialogTitle: "Pick A File/Files ",
+      type: FileType.custom,
+      allowedExtensions: ["exe"],
+    );
+
+    if (result == null){
+      return;
+    }
+
+    for (PlatformFile file in result.files){
+      programList.add(Program(file.name, file.path!));
+      debugPrint("File Added!");
+    }
+
+    for (Program program in programList){
+      debugPrint("program=${program.name} |path=${program.path}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
       content: ListView(
         children: [
-          ListTile(
-            title: Text(list[0]),
-            trailing: IconButton(
-              icon: const Icon(FluentIcons.delete),
-              onPressed: () {
-                list.remove("program 1");
-              },
-            ),
-          ),
-          ListTile(
-            title: Text(list[1]),
-            trailing: IconButton(
-              icon: const Icon(FluentIcons.delete),
-              onPressed: () {
-                list.remove("program 2");
-              },
-            ),
-          ),
+          Column(
+            children: programList
+              .map(
+                (program) => ListTile(
+                  title: Text(program.name),
+                  subtitle: Text("path=${program.path}"),
+                  trailing: IconButton(
+                    icon: const Icon(FluentIcons.delete),
+                    onPressed: () {
+                      programList.remove(program.name);
+                    },
+                  ),
+                ),
+              )
+              .toList(),
+          )
         ],
       ),
       bottomBar: Container(
@@ -200,7 +220,7 @@ class _FilesPageState extends State<FilesPage> {
           message: 'add new program',
           child: Button(
             onPressed: () {
-              debugPrint("Button Clicked!");
+              _pickFile();
             },
             style: ButtonStyle(
               shape: ButtonState.all(RoundedRectangleBorder(

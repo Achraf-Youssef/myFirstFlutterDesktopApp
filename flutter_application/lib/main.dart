@@ -75,6 +75,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   CollectionReference tasksCollection = Firestore.instance.collection("tasks");
+  CollectionReference programCollection =
+      Firestore.instance.collection("programs");
 
   FlyoutController buttonController = FlyoutController();
   final myTitleController = TextEditingController();
@@ -147,19 +149,7 @@ class _HomePageState extends State<HomePage> {
                                   selectedId = task.id;
                                   myTitleController.text = task["title"];
                                   mySubtitleController.text = task["subtitle"];
-                                  updateTask(
-                                      myTitleController.text,
-                                      mySubtitleController.text,
-                                      "${DateTime.now()}", [
-                                    {
-                                      "name": "exemple.exe",
-                                      "path": "./exemple.exe"
-                                    }
-                                  ]);
-                                  setState(() {
-                                    myTitleController.clear();
-                                    mySubtitleController.clear();
-                                  });
+                                  buttonController.open();
                                 }),
                             title: Text(task["title"]),
                             subtitle: Text(task["subtitle"]),
@@ -168,6 +158,7 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () async {
                                 selectedId = task.id;
                                 deleteTask();
+                                setState(() {});
                               },
                             ),
                             onPressed: () {
@@ -223,13 +214,22 @@ class _HomePageState extends State<HomePage> {
                   Button(
                     onPressed: () async {
                       if (myTitleController.text != "") {
-                        addTask(myTitleController.text,
-                            mySubtitleController.text, "${DateTime.now()}", [
-                          {"name": "exemple.exe", "path": "./exemple.exe"}
-                        ]);
+                        if (await tasksCollection
+                            .document(selectedId!)
+                            .exists) {
+                          updateTask(myTitleController.text,
+                              mySubtitleController.text, "${DateTime.now()}", [
+                            {"name": "exemple.exe", "path": "./exemple.exe"}
+                          ]);
+                        } else {
+                          addTask(myTitleController.text,
+                              mySubtitleController.text, "${DateTime.now()}", [
+                            {"name": "exemple.exe", "path": "./exemple.exe"}
+                          ]);
+                        }
                       }
                       setState(() {
-                        buttonController.close;
+                        buttonController.close();
                         myTitleController.clear();
                         mySubtitleController.clear();
                       });
@@ -270,7 +270,29 @@ class FilesPage extends StatefulWidget {
 }
 
 class _FilesPageState extends State<FilesPage> {
+  CollectionReference programCollection =
+      Firestore.instance.collection("programs");
+
   List<Program> programList = [];
+
+  String? selectedId;
+
+  Future<List<Document>> getPrograms() async {
+    List<Document> programs = await programCollection.get();
+
+    return programs;
+  }
+
+  addProgram(String name, String path) async {
+    await programCollection.add({
+      "name": name,
+      "path": path,
+    });
+  }
+
+  deleteProgram() async {
+    await programCollection.document(selectedId!).delete();
+  }
 
   void _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -285,7 +307,7 @@ class _FilesPageState extends State<FilesPage> {
     }
 
     for (PlatformFile file in result.files) {
-      programList.add(Program(file.name, file.path!));
+      addProgram(file.name, file.path!);
       debugPrint("File Added!");
     }
 
@@ -297,28 +319,48 @@ class _FilesPageState extends State<FilesPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
-      content: ListView(
-        children: [
-          Column(
-            children: programList
-                .map(
-                  (program) => ListTile(
-                    title: Text(program.name),
-                    subtitle: Text("path=${program.path}"),
-                    trailing: IconButton(
-                      icon: const Icon(FluentIcons.delete),
-                      onPressed: () {
-                        setState(() async {
-                          programList.remove(program.name);
-                        });
-                      },
-                    ),
-                  ),
-                )
-                .toList(),
-          )
-        ],
-      ),
+      content: FutureBuilder<List<Document>>(
+          future: getPrograms(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Document>> snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: ProgressRing(),
+              );
+            }
+            return (snapshot.data!.isEmpty)
+                ? const Center(
+                    child: Text("No Programs!"),
+                  )
+                : ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: snapshot.data!
+                        .map(
+                          (task) => ListTile(
+                            leading: IconButton(
+                                icon: const Icon(FluentIcons.app_icon_default),
+                                onPressed: () async {
+                                  selectedId = task.id;
+                                }),
+                            title: Text(task["name"]),
+                            subtitle: Text(task["path"]),
+                            trailing: IconButton(
+                              icon: const Icon(FluentIcons.delete),
+                              onPressed: () async {
+                                selectedId = task.id;
+                                deleteProgram();
+                                setState(() {});
+                              },
+                            ),
+                            onPressed: () {
+                              debugPrint(task.id);
+                            },
+                          ),
+                        )
+                        .toList(),
+                  );
+          }),
       bottomBar: Container(
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.all(20.0),
@@ -326,9 +368,8 @@ class _FilesPageState extends State<FilesPage> {
           message: 'add new program',
           child: Button(
             onPressed: () {
-              setState(() {
-                _pickFile();
-              });
+              _pickFile();
+              setState(() {});
             },
             style: ButtonStyle(
               shape: ButtonState.all(RoundedRectangleBorder(

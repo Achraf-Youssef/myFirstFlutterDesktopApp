@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_application/program.dart';
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_application/task.dart';
 
 void main() {
   runApp(FluentApp(
@@ -68,26 +69,36 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   FlyoutController buttonController = FlyoutController();
+  final myTitleController = TextEditingController();
+  final mySubtitleController = TextEditingController();
+
+  List<Task> listTasks = [];
+  List<Program> programList = [];
+
   String current = "item 1";
   List<String> list = ["item 1", "item 2", "item 3", "item 4"];
-  List<Map<String, String>> list_1 = [
-    {"title": "title1", "subtitle": "subtitle1"},
-  ];
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
       header:
           (list.isEmpty) ? const Center(child: ProgressRing()) : const Text(""),
-      content: ListView(children: [
-        ListTile(
-          leading: const Icon(FluentIcons.emoji2),
-          title: Text(list_1[0]["title"]!),
-          subtitle: Text(list_1[0]["subtitle"]!),
-          trailing: Text("${DateTime.now()}"),
-          onPressed: (() {}),
-        ),
-      ]),
+      content: ListView(
+        children: listTasks
+            .map(
+              (task) => ListTile(
+                leading: const Icon(FluentIcons.emoji2),
+                title: Text(task.title),
+                subtitle: Text(task.subtitle),
+                trailing: IconButton(
+                  icon: const Icon(FluentIcons.delete),
+                  onPressed: () {},
+                ),
+                onPressed: () {},
+              ),
+            )
+            .toList(),
+      ),
       bottomBar: Flyout(
           controller: buttonController,
           content: (context) {
@@ -110,27 +121,35 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     width: 400.0,
                     child: TextBox(
+                      controller: myTitleController,
                       header: 'Title:',
                       placeholder: 'title',
                       expands: false,
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     width: 400.0,
                     child: TextBox(
                       header: 'subtitle:',
                       placeholder: 'subtitle',
                       maxLines: 5,
                       expands: false,
+                      controller: mySubtitleController,
                     ),
                   ),
                   const SizedBox(height: 10.0),
                   Button(
                     onPressed: () {
-                      setState(buttonController.close);
+                      setState(() {
+                        buttonController.close;
+                        listTasks.add(Task(
+                            myTitleController.text,
+                            mySubtitleController.text,
+                            "${DateTime.now()}", []));
+                      });
                     },
                     child: const Icon(FluentIcons.check_mark),
                   )
@@ -178,16 +197,16 @@ class _FilesPageState extends State<FilesPage> {
       allowedExtensions: ["exe"],
     );
 
-    if (result == null){
+    if (result == null) {
       return;
     }
 
-    for (PlatformFile file in result.files){
+    for (PlatformFile file in result.files) {
       programList.add(Program(file.name, file.path!));
       debugPrint("File Added!");
     }
 
-    for (Program program in programList){
+    for (Program program in programList) {
       debugPrint("program=${program.name} |path=${program.path}");
     }
   }
@@ -199,21 +218,21 @@ class _FilesPageState extends State<FilesPage> {
         children: [
           Column(
             children: programList
-              .map(
-                (program) => ListTile(
-                  title: Text(program.name),
-                  subtitle: Text("path=${program.path}"),
-                  trailing: IconButton(
-                    icon: const Icon(FluentIcons.delete),
-                    onPressed: () {
-                      setState(() {
-                        programList.remove(program.name);
-                      });
-                    },
+                .map(
+                  (program) => ListTile(
+                    title: Text(program.name),
+                    subtitle: Text("path=${program.path}"),
+                    trailing: IconButton(
+                      icon: const Icon(FluentIcons.delete),
+                      onPressed: () {
+                        setState(() async {
+                          programList.remove(program.name);
+                        });
+                      },
+                    ),
                   ),
-                ),
-              )
-              .toList(),
+                )
+                .toList(),
           )
         ],
       ),

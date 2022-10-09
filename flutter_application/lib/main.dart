@@ -85,30 +85,99 @@ class _HomePageState extends State<HomePage> {
   String current = "item 1";
   List<String> list = ["item 1", "item 2", "item 3", "item 4"];
 
+  String? selectedId;
+
+  Future<List<Document>> getTasks() async {
+    List<Document> tasks = await tasksCollection.orderBy("date").get();
+
+    return tasks;
+  }
+
+  addTask(
+      String title, String subtitle, String date, List<Map> programList) async {
+    await tasksCollection.add({
+      "title": title,
+      "subtitle": subtitle,
+      "programList": programList,
+      "date": date,
+    });
+  }
+
+  updateTask(
+      String title, String subtitle, String date, List<Map> programList) async {
+    await tasksCollection.document(selectedId!).update({
+      "title": title,
+      "subtitle": subtitle,
+      "programList": programList,
+      "date": date,
+    });
+  }
+
+  deleteTask() async {
+    await tasksCollection.document(selectedId!).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
       header:
           (list.isEmpty) ? const Center(child: ProgressRing()) : const Text(""),
-      content: ListView(
-        children: listTasks
-            .map(
-              (task) => ListTile(
-                leading: const Icon(FluentIcons.emoji2),
-                title: Text(task.title),
-                subtitle: Text(task.subtitle),
-                trailing: IconButton(
-                  icon: const Icon(FluentIcons.delete),
-                  onPressed: () async {
-                    final tasks = await tasksCollection.get();
-                    debugPrint("${tasks}");
-                  },
-                ),
-                onPressed: () {},
-              ),
-            )
-            .toList(),
-      ),
+      content: FutureBuilder<List<Document>>(
+          future: getTasks(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Document>> snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: ProgressRing(),
+              );
+            }
+            return (snapshot.data!.isEmpty)
+                ? const Center(
+                    child: Text("No Tasks!"),
+                  )
+                : ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: snapshot.data!
+                        .map(
+                          (task) => ListTile(
+                            leading: IconButton(
+                                icon: const Icon(FluentIcons.edit),
+                                onPressed: () async {
+                                  selectedId = task.id;
+                                  myTitleController.text = task["title"];
+                                  mySubtitleController.text = task["subtitle"];
+                                  updateTask(
+                                      myTitleController.text,
+                                      mySubtitleController.text,
+                                      "${DateTime.now()}", [
+                                    {
+                                      "name": "exemple.exe",
+                                      "path": "./exemple.exe"
+                                    }
+                                  ]);
+                                  setState(() {
+                                    myTitleController.clear();
+                                    mySubtitleController.clear();
+                                  });
+                                }),
+                            title: Text(task["title"]),
+                            subtitle: Text(task["subtitle"]),
+                            trailing: IconButton(
+                              icon: const Icon(FluentIcons.delete),
+                              onPressed: () async {
+                                selectedId = task.id;
+                                deleteTask();
+                              },
+                            ),
+                            onPressed: () {
+                              debugPrint(task.id);
+                            },
+                          ),
+                        )
+                        .toList(),
+                  );
+          }),
       bottomBar: Flyout(
           controller: buttonController,
           content: (context) {
@@ -153,15 +222,17 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 10.0),
                   Button(
                     onPressed: () async {
+                      if (myTitleController.text != "") {
+                        addTask(myTitleController.text,
+                            mySubtitleController.text, "${DateTime.now()}", [
+                          {"name": "exemple.exe", "path": "./exemple.exe"}
+                        ]);
+                      }
+                      setState(() {
                         buttonController.close;
-                        await tasksCollection.add({
-                          "title": myTitleController.text,
-                          "subtitle": mySubtitleController.text,
-                          "programList": [
-                            {"name": "example.exe", "path": "./example.exe"},
-                          ],
-                          "date": "${DateTime.now()}",
-                        });
+                        myTitleController.clear();
+                        mySubtitleController.clear();
+                      });
                     },
                     child: const Icon(FluentIcons.check_mark),
                   )

@@ -49,11 +49,9 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-  themeListener(){
+  themeListener() {
     if (mounted) {
-      setState(() {
-        
-      });
+      setState(() {});
     }
   }
 
@@ -62,8 +60,16 @@ class _HomeState extends State<Home> {
     return NavigationView(
       transitionBuilder: (child, animation) =>
           EntrancePageTransition(animation: animation, child: child),
-      appBar: const NavigationAppBar(
-        title: Text('NavigationView'),
+      appBar: NavigationAppBar(
+        title: const Text('NavigationView'),
+        actions: ToggleSwitch(
+          checked: _themeManager.themeMode == ThemeMode.dark,
+          onChanged: (v) {
+            _themeManager.toggleTheme(v);
+            debugPrint("Theme Has Changed");
+          },
+          content: const Text("Dark Mode"),
+        ),
       ),
       pane: NavigationPane(
         selected: _currentPage,
@@ -244,8 +250,7 @@ class _HomePageState extends State<HomePage> {
                               mySubtitleController.text, "${DateTime.now()}", [
                             {"name": "exemple.exe", "path": "./exemple.exe"}
                           ]);
-                        }
-                        else if (await tasksCollection
+                        } else if (await tasksCollection
                             .document(selectedId!)
                             .exists) {
                           updateTask(myTitleController.text,
@@ -435,16 +440,6 @@ class _SettingsPageState extends State<SettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ToggleSwitch(
-              checked: _themeManager.themeMode == ThemeMode.dark,
-              onChanged: (v) {
-                setState(() {
-                  _themeManager.toggleTheme(v);
-                  debugPrint("Theme Changed");
-                });
-              },
-              content: const Text("Dark Mode"),
-            ),
             ToggleSwitch(
               checked: checked_1,
               onChanged: (v) => setState(() {

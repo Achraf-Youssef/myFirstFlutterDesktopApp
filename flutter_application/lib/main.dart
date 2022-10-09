@@ -4,17 +4,22 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_application/task.dart';
 import 'package:firedart/firedart.dart';
+import 'package:flutter_application/theme/theme_constant.dart';
+import 'package:flutter_application/theme/theme_manager.dart';
 
 const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 const projectId = 'remindini-firebase';
+
+ThemeManager _themeManager = ThemeManager();
 
 void main() {
   Firestore.initialize(projectId);
 
   runApp(FluentApp(
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(brightness: Brightness.light, accentColor: Colors.blue),
-    darkTheme: ThemeData(brightness: Brightness.dark, accentColor: Colors.blue),
+    theme: lightTheme,
+    darkTheme: darkTheme,
+    themeMode: _themeManager.themeMode,
     initialRoute: "/",
     routes: {
       "/": (context) => const Home(),
@@ -31,6 +36,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _themeManager.removeListener(themeListener);
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _themeManager.addListener(themeListener);
+    super.initState();
+  }
+
+  themeListener(){
+    if (mounted) {
+      setState(() {
+        
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +109,8 @@ class _HomePageState extends State<HomePage> {
 
   List<Task> listTasks = [];
 
-  String current = "item 1";
-  List<String> list = ["item 1", "item 2", "item 3", "item 4"];
+  String current = "low";
+  List<String> list = ["low", "high"];
 
   String? selectedId;
 
@@ -214,7 +239,13 @@ class _HomePageState extends State<HomePage> {
                   Button(
                     onPressed: () async {
                       if (myTitleController.text != "") {
-                        if (await tasksCollection
+                        if (selectedId == null) {
+                          addTask(myTitleController.text,
+                              mySubtitleController.text, "${DateTime.now()}", [
+                            {"name": "exemple.exe", "path": "./exemple.exe"}
+                          ]);
+                        }
+                        else if (await tasksCollection
                             .document(selectedId!)
                             .exists) {
                           updateTask(myTitleController.text,
@@ -394,13 +425,10 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool checked = false;
   bool checked_1 = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = FluentTheme.of(context);
-
     return ScaffoldPage(
       padding: const EdgeInsets.all(5.0),
       content: Column(
@@ -408,12 +436,13 @@ class _SettingsPageState extends State<SettingsPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ToggleSwitch(
-              checked: checked,
-              onChanged: (v) => setState(() {
-                checked = v;
-                theme.toggleSwitchTheme;
-                debugPrint("Theme Changed!");
-              }),
+              checked: _themeManager.themeMode == ThemeMode.dark,
+              onChanged: (v) {
+                setState(() {
+                  _themeManager.toggleTheme(v);
+                  debugPrint("Theme Changed");
+                });
+              },
               content: const Text("Dark Mode"),
             ),
             ToggleSwitch(

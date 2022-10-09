@@ -3,8 +3,14 @@ import 'package:flutter_application/program.dart';
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_application/task.dart';
+import 'package:firedart/firedart.dart';
+
+const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
+const projectId = 'remindini-firebase';
 
 void main() {
+  Firestore.initialize(projectId);
+
   runApp(FluentApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(brightness: Brightness.light, accentColor: Colors.blue),
@@ -68,12 +74,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  CollectionReference tasksCollection = Firestore.instance.collection("tasks");
+
   FlyoutController buttonController = FlyoutController();
   final myTitleController = TextEditingController();
   final mySubtitleController = TextEditingController();
 
   List<Task> listTasks = [];
-  List<Program> programList = [];
 
   String current = "item 1";
   List<String> list = ["item 1", "item 2", "item 3", "item 4"];
@@ -92,7 +99,10 @@ class _HomePageState extends State<HomePage> {
                 subtitle: Text(task.subtitle),
                 trailing: IconButton(
                   icon: const Icon(FluentIcons.delete),
-                  onPressed: () {},
+                  onPressed: () async {
+                    final tasks = await tasksCollection.get();
+                    debugPrint("${tasks}");
+                  },
                 ),
                 onPressed: () {},
               ),
@@ -142,14 +152,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 10.0),
                   Button(
-                    onPressed: () {
-                      setState(() {
+                    onPressed: () async {
                         buttonController.close;
-                        listTasks.add(Task(
-                            myTitleController.text,
-                            mySubtitleController.text,
-                            "${DateTime.now()}", []));
-                      });
+                        await tasksCollection.add({
+                          "title": myTitleController.text,
+                          "subtitle": mySubtitleController.text,
+                          "programList": [
+                            {"name": "example.exe", "path": "./example.exe"},
+                          ],
+                          "date": "${DateTime.now()}",
+                        });
                     },
                     child: const Icon(FluentIcons.check_mark),
                   )

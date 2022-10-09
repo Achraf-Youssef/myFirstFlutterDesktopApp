@@ -10,21 +10,33 @@ import 'package:flutter_application/theme/theme_manager.dart';
 const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 const projectId = 'remindini-firebase';
 
-ThemeManager _themeManager = ThemeManager();
+final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
 
 void main() {
   Firestore.initialize(projectId);
 
-  runApp(FluentApp(
-    debugShowCheckedModeBanner: false,
-    theme: lightTheme,
-    darkTheme: darkTheme,
-    themeMode: _themeManager.themeMode,
-    initialRoute: "/",
-    routes: {
-      "/": (context) => const Home(),
-    },
-  ));
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: _notifier,
+      builder: (_, mode, __) {
+        return FluentApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: mode,
+            initialRoute: "/",
+            routes: {
+              "/": (context) => const Home(),
+            });
+      },
+    );
+  }
 }
 
 class Home extends StatefulWidget {
@@ -39,79 +51,67 @@ class _HomeState extends State<Home> {
   bool checked_1 = false;
 
   @override
-  void dispose() {
-    _themeManager.removeListener(themeListener);
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    _themeManager.addListener(themeListener);
-    super.initState();
-  }
-
-  themeListener() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return NavigationView(
-      transitionBuilder: (child, animation) =>
-          EntrancePageTransition(animation: animation, child: child),
-      appBar: NavigationAppBar(
-          title: const Text('NavigationView'),
-          actions: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ToggleSwitch(
-                checked: checked_1,
-                onChanged: (v) => setState(() {
-                  checked_1 = v;
-                  if (checked_1) {
-                    debugPrint("Concentration Mode Activated!");
-                  } else {
-                    debugPrint("Concentration Mode Deactivated!");
-                  }
-                }),
-                content: const Text("Concentration Mode"),
-              ),
-              ToggleSwitch(
-                checked: _themeManager.themeMode == ThemeMode.dark,
-                onChanged: (v) {
-                  _themeManager.toggleTheme(v);
-                  debugPrint("Theme Has Changed");
-                },
-                content: const Text("Dark Mode"),
-              ),
-            ],
-          )),
-      pane: NavigationPane(
-        selected: _currentPage,
-        displayMode: PaneDisplayMode.compact,
-        onChanged: (i) => setState(() => _currentPage = i),
-        items: <NavigationPaneItem>[
-          PaneItem(
-            icon: const Icon(FluentIcons.home),
-            title: const Text("home"),
-            body: const HomePage(),
-          ),
-          PaneItem(
-            icon: const Icon(FluentIcons.fabric_folder),
-            title: const Text("files"),
-            body: const FilesPage(),
-          ),
-          PaneItem(
-            icon: const Icon(FluentIcons.settings),
-            title: const Text("settings"),
-            body: const SettingsPage(),
-          ),
-        ],
-      ),
-    );
+    return ValueListenableBuilder<ThemeMode>(
+        valueListenable: _notifier,
+        builder: (_, mode, __) {
+          return NavigationView(
+            transitionBuilder: (child, animation) =>
+                EntrancePageTransition(animation: animation, child: child),
+            appBar: NavigationAppBar(
+                title: const Text('NavigationView'),
+                actions: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ToggleSwitch(
+                      checked: checked_1,
+                      onChanged: (v) => setState(() {
+                        checked_1 = v;
+                        if (checked_1) {
+                          debugPrint("Concentration Mode Activated!");
+                        } else {
+                          debugPrint("Concentration Mode Deactivated!");
+                        }
+                      }),
+                      content: const Text("Concentration Mode"),
+                    ),
+                    ToggleSwitch(
+                      checked: mode == ThemeMode.dark,
+                      onChanged: (v) {
+                        _notifier.value = mode == ThemeMode.light
+                            ? ThemeMode.dark
+                            : ThemeMode.light;
+                        debugPrint("Theme Has Changed");
+                      },
+                      content: const Text("Dark Mode"),
+                    ),
+                  ],
+                )),
+            pane: NavigationPane(
+              selected: _currentPage,
+              displayMode: PaneDisplayMode.compact,
+              onChanged: (i) => setState(() => _currentPage = i),
+              items: <NavigationPaneItem>[
+                PaneItem(
+                  icon: const Icon(FluentIcons.home),
+                  title: const Text("home"),
+                  body: const HomePage(),
+                ),
+                PaneItem(
+                  icon: const Icon(FluentIcons.fabric_folder),
+                  title: const Text("files"),
+                  body: const FilesPage(),
+                ),
+                PaneItem(
+                  icon: const Icon(FluentIcons.settings),
+                  title: const Text("settings"),
+                  body: const SettingsPage(),
+                ),
+              ],
+            ),
+          );
+        });
   }
 }
 

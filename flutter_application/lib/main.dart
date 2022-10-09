@@ -129,7 +129,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 10.0),
                   Button(
-                    onPressed: buttonController.close,
+                    onPressed: () {
+                      setState(buttonController.close);
+                    },
                     child: const Icon(FluentIcons.check_mark),
                   )
                 ],
@@ -204,7 +206,9 @@ class _FilesPageState extends State<FilesPage> {
                   trailing: IconButton(
                     icon: const Icon(FluentIcons.delete),
                     onPressed: () {
-                      programList.remove(program.name);
+                      setState(() {
+                        programList.remove(program.name);
+                      });
                     },
                   ),
                 ),
@@ -220,7 +224,9 @@ class _FilesPageState extends State<FilesPage> {
           message: 'add new program',
           child: Button(
             onPressed: () {
-              _pickFile();
+              setState(() {
+                _pickFile();
+              });
             },
             style: ButtonStyle(
               shape: ButtonState.all(RoundedRectangleBorder(

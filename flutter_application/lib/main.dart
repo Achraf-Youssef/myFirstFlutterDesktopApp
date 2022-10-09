@@ -47,8 +47,19 @@ class MyApp extends StatelessWidget {
       builder: (_, mode, __) {
         return FluentApp(
             debugShowCheckedModeBanner: false,
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: ThemeData(
+              accentColor: Colors.blue,
+              buttonTheme: ButtonThemeData(
+                defaultButtonStyle: ButtonStyle(
+                  backgroundColor: ButtonState.all(Colors.grey[30]),
+                ),
+              ),
+              brightness: Brightness.light,
+            ),
+            darkTheme: ThemeData(
+              accentColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
             themeMode: mode,
             initialRoute: "/",
             routes: {
@@ -69,8 +80,6 @@ class SettingsPage extends StatefulWidget {
 class _FilesPageState extends State<FilesPage> {
   CollectionReference programCollection =
       Firestore.instance.collection("programs");
-
-  List<Program> programList = [];
 
   String? selectedId;
 
@@ -176,10 +185,6 @@ class _FilesPageState extends State<FilesPage> {
       addProgram(file.name, file.path!);
       debugPrint("File Added!");
     }
-
-    for (Program program in programList) {
-      debugPrint("program=${program.name} |path=${program.path}");
-    }
   }
 }
 
@@ -192,19 +197,17 @@ class _HomePageState extends State<HomePage> {
   final myTitleController = TextEditingController();
   final mySubtitleController = TextEditingController();
 
-  List<Task> listTasks = [];
-
-  String current = "low";
-  List<String> list = ["low", "high"];
+  String current = "high";
+  List<String> list = ["high", "low"];
 
   String? selectedId;
+  String action = "add";
 
-  addTask(
-      String title, String subtitle, String date, List<Map> programList) async {
+  addTask(String title, String subtitle, String date, int priority) async {
     await tasksCollection.add({
       "title": title,
       "subtitle": subtitle,
-      "programList": programList,
+      "priority": priority,
       "date": date,
     });
   }
@@ -239,6 +242,7 @@ class _HomePageState extends State<HomePage> {
                                   selectedId = task.id;
                                   myTitleController.text = task["title"];
                                   mySubtitleController.text = task["subtitle"];
+                                  action = "edit";
                                   buttonController.open();
                                 }),
                             title: Text(task["title"]),
@@ -304,29 +308,25 @@ class _HomePageState extends State<HomePage> {
                   Button(
                     onPressed: () async {
                       if (myTitleController.text != "") {
-                        if (selectedId == null) {
-                          addTask(myTitleController.text,
-                              mySubtitleController.text, "${DateTime.now()}", [
-                            {"name": "exemple.exe", "path": "./exemple.exe"}
-                          ]);
-                        } else if (await tasksCollection
-                            .document(selectedId!)
-                            .exists) {
-                          updateTask(myTitleController.text,
-                              mySubtitleController.text, "${DateTime.now()}", [
-                            {"name": "exemple.exe", "path": "./exemple.exe"}
-                          ]);
+                        if (action != "add") {
+                          updateTask(
+                              myTitleController.text,
+                              mySubtitleController.text,
+                              "${DateTime.now()}",
+                              list.indexOf(current));
                         } else {
-                          addTask(myTitleController.text,
-                              mySubtitleController.text, "${DateTime.now()}", [
-                            {"name": "exemple.exe", "path": "./exemple.exe"}
-                          ]);
+                          addTask(
+                              myTitleController.text,
+                              mySubtitleController.text,
+                              "${DateTime.now()}",
+                              list.indexOf(current));
                         }
                       }
                       setState(() {
                         buttonController.close();
                         myTitleController.clear();
                         mySubtitleController.clear();
+                        action = "add";
                       });
                     },
                     child: const Icon(FluentIcons.check_mark),
@@ -361,17 +361,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Document>> getTasks() async {
-    List<Document> tasks = await tasksCollection.orderBy("date").get();
+    List<Document> tasks = await tasksCollection.orderBy("priority").get();
 
     return tasks;
   }
 
-  updateTask(
-      String title, String subtitle, String date, List<Map> programList) async {
+  updateTask(String title, String subtitle, String date, int priority) async {
     await tasksCollection.document(selectedId!).update({
       "title": title,
       "subtitle": subtitle,
-      "programList": programList,
+      "priority": priority,
       "date": date,
     });
   }

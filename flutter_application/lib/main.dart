@@ -15,6 +15,7 @@ const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 const projectId = 'remindini-firebase';
 
 final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
+bool checked_1 = false;
 
 class FilesPage extends StatefulWidget {
   const FilesPage({super.key});
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
             initialRoute: "/",
             routes: {
               "/": (context) => const Home(),
+              "/concentrationMode": (context) => const ConcentrationMode(),
             });
       },
     );
@@ -378,7 +380,6 @@ class _HomePageState extends State<HomePage> {
 
 class _HomeState extends State<Home> {
   int _currentPage = 0;
-  bool checked_1 = false;
 
   @override
   Widget build(BuildContext context) {
@@ -460,6 +461,33 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Text("Nothing Here Yet!"),
             ),
           ]),
+    );
+  }
+}
+
+class ConcentrationMode extends StatefulWidget {
+  const ConcentrationMode({super.key});
+
+  @override
+  State<ConcentrationMode> createState() => _ConcentrationModeState();
+}
+
+class _ConcentrationModeState extends State<ConcentrationMode> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ToggleSwitch(
+        checked: checked_1,
+        onChanged: (v) => setState(() {
+          checked_1 = v;
+          if (checked_1) {
+            debugPrint("Concentration Mode Activated!");
+          } else {
+            debugPrint("Concentration Mode Deactivated!");
+          }
+        }),
+        content: const Text("Concentration Mode"),
+      ),
     );
   }
 }

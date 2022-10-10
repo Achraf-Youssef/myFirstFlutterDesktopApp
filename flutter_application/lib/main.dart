@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:firedart/firedart.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() {
   Firestore.initialize(projectId);
@@ -113,14 +114,14 @@ class _FilesPageState extends State<FilesPage> {
                         .map(
                           (task) => ListTile(
                             leading: IconButton(
-                                icon: const Icon(FluentIcons.app_icon_default),
+                                icon: const Icon(CupertinoIcons.app),
                                 onPressed: () async {
                                   selectedId = task.id;
                                 }),
                             title: Text(task["name"]),
                             subtitle: Text(task["path"]),
                             trailing: IconButton(
-                              icon: const Icon(FluentIcons.delete),
+                              icon: const Icon(CupertinoIcons.delete),
                               onPressed: () async {
                                 selectedId = task.id;
                                 deleteProgram();
@@ -152,7 +153,7 @@ class _FilesPageState extends State<FilesPage> {
               padding: ButtonState.all(const EdgeInsets.all(20.0)),
               iconSize: ButtonState.all(20.0),
             ),
-            child: const Icon(FluentIcons.add),
+            child: const Icon(CupertinoIcons.add),
           ),
         ),
       ),
@@ -237,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                         .map(
                           (task) => ListTile(
                             leading: IconButton(
-                                icon: const Icon(FluentIcons.edit),
+                                icon: const Icon(CupertinoIcons.pen),
                                 onPressed: () async {
                                   selectedId = task.id;
                                   myTitleController.text = task["title"];
@@ -248,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                             title: Text(task["title"]),
                             subtitle: Text(task["subtitle"]),
                             trailing: IconButton(
-                              icon: const Icon(FluentIcons.delete),
+                              icon: const Icon(CupertinoIcons.delete),
                               onPressed: () async {
                                 selectedId = task.id;
                                 deleteTask();
@@ -329,7 +330,7 @@ class _HomePageState extends State<HomePage> {
                         action = "add";
                       });
                     },
-                    child: const Icon(FluentIcons.check_mark),
+                    child: const Icon(CupertinoIcons.check_mark),
                   )
                 ],
               ),
@@ -349,7 +350,7 @@ class _HomePageState extends State<HomePage> {
                   padding: ButtonState.all(const EdgeInsets.all(20.0)),
                   iconSize: ButtonState.all(20.0),
                 ),
-                child: const Icon(FluentIcons.add),
+                child: const Icon(CupertinoIcons.add),
               ),
             ),
           )),
@@ -414,7 +415,15 @@ class _HomeState extends State<Home> {
                             : ThemeMode.light;
                         debugPrint("Theme Has Changed");
                       },
-                      content: const Text("Dark Mode"),
+                      content: Row(children: [
+                        const Text("Dark Mode"),
+                        const SizedBox(
+                          width: 10.0,
+                        ),
+                        (mode == ThemeMode.dark)
+                            ? const Icon(CupertinoIcons.moon_fill)
+                            : const Icon(CupertinoIcons.sun_max_fill),
+                      ]),
                     ),
                   ],
                 )),
@@ -424,17 +433,17 @@ class _HomeState extends State<Home> {
               onChanged: (i) => setState(() => _currentPage = i),
               items: <NavigationPaneItem>[
                 PaneItem(
-                  icon: const Icon(FluentIcons.home),
+                  icon: const Icon(CupertinoIcons.home),
                   title: const Text("home"),
                   body: const HomePage(),
                 ),
                 PaneItem(
-                  icon: const Icon(FluentIcons.fabric_folder),
+                  icon: const Icon(CupertinoIcons.folder),
                   title: const Text("files"),
                   body: const FilesPage(),
                 ),
                 PaneItem(
-                  icon: const Icon(FluentIcons.settings),
+                  icon: const Icon(CupertinoIcons.settings),
                   title: const Text("settings"),
                   body: const SettingsPage(),
                 ),
@@ -446,8 +455,6 @@ class _HomeState extends State<Home> {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool checked_1 = false;
-
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(

@@ -16,7 +16,7 @@ const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 const projectId = 'remindini-firebase';
 
 final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
-bool checked_1 = false;
+bool checked = false, switched = false;
 
 class FilesPage extends StatefulWidget {
   const FilesPage({super.key});
@@ -385,79 +385,87 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
-        valueListenable: _notifier,
-        builder: (_, mode, __) {
-          return NavigationView(
-            transitionBuilder: (child, animation) =>
-                EntrancePageTransition(animation: animation, child: child),
-            appBar: NavigationAppBar(
-                title: const Text('NavigationView'),
-                actions: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ToggleSwitch(
-                        checked: checked_1,
-                        onChanged: (v) => setState(() {
-                          checked_1 = v;
-                          if (checked_1) {
-                            debugPrint("Concentration Mode Activated!");
-                          } else {
-                            debugPrint("Concentration Mode Deactivated!");
-                          }
-                        }),
-                        content: const Text("Concentration Mode"),
-                      ),
+      valueListenable: _notifier,
+      builder: (_, mode, __) {
+        return NavigationView(
+          transitionBuilder: (child, animation) =>
+              EntrancePageTransition(animation: animation, child: child),
+          appBar: NavigationAppBar(
+              actions: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ToggleSwitch(
+                  checked: checked,
+                  onChanged: (v) {
+                    checked = v;
+                    setState(
+                      () {
+                        if (checked && !switched) {
+                          Navigator.pushNamed(context, "/concentrationMode");
+                          switched = !switched;
+                          debugPrint("Concentration Mode Activated!");
+                        } else {
+                          Navigator.of(context)
+                              .popUntil(ModalRoute.withName('/'));
+                          switched = !switched;
+                          debugPrint("Concentration Mode Deactivated!");
+                        }
+                      },
+                    );
+                  },
+                  content: const Text("Concentration Mode"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ToggleSwitch(
+                  checked: mode == ThemeMode.dark,
+                  onChanged: (v) {
+                    _notifier.value = mode == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+                    debugPrint("Theme Has Changed");
+                  },
+                  content: Row(children: [
+                    const SizedBox(
+                      width: 10.0,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ToggleSwitch(
-                        checked: mode == ThemeMode.dark,
-                        onChanged: (v) {
-                          _notifier.value = mode == ThemeMode.light
-                              ? ThemeMode.dark
-                              : ThemeMode.light;
-                          debugPrint("Theme Has Changed");
-                        },
-                        content: Row(children: [
-                          const Text("Dark Mode"),
-                          const SizedBox(
-                            width: 10.0,
-                          ),
-                          (mode == ThemeMode.dark)
-                              ? const Icon(CupertinoIcons.moon_fill)
-                              : const Icon(CupertinoIcons.sun_max_fill),
-                        ]),
-                      ),
-                    ),
-                  ],
-                )),
-            pane: NavigationPane(
-              selected: _currentPage,
-              displayMode: PaneDisplayMode.compact,
-              onChanged: (i) => setState(() => _currentPage = i),
-              items: <NavigationPaneItem>[
-                PaneItem(
-                  icon: const Icon(CupertinoIcons.home),
-                  title: const Text("home"),
-                  body: const HomePage(),
+                    (mode == ThemeMode.dark)
+                        ? const Icon(CupertinoIcons.moon_fill)
+                        : const Icon(CupertinoIcons.sun_max_fill),
+                  ]),
                 ),
-                PaneItem(
-                  icon: const Icon(CupertinoIcons.folder),
-                  title: const Text("files"),
-                  body: const FilesPage(),
-                ),
-                PaneItem(
-                  icon: const Icon(CupertinoIcons.settings),
-                  title: const Text("settings"),
-                  body: const SettingsPage(),
-                ),
-              ],
-            ),
-          );
-        });
+              ),
+            ],
+          )),
+          pane: NavigationPane(
+            selected: _currentPage,
+            displayMode: PaneDisplayMode.compact,
+            onChanged: (i) => setState(() => _currentPage = i),
+            items: <NavigationPaneItem>[
+              PaneItem(
+                icon: const Icon(CupertinoIcons.home),
+                title: const Text("home"),
+                body: const HomePage(),
+              ),
+              PaneItem(
+                icon: const Icon(CupertinoIcons.folder),
+                title: const Text("files"),
+                body: const FilesPage(),
+              ),
+              PaneItem(
+                icon: const Icon(CupertinoIcons.settings),
+                title: const Text("settings"),
+                body: const SettingsPage(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -467,13 +475,14 @@ class _SettingsPageState extends State<SettingsPage> {
     return ScaffoldPage(
       padding: const EdgeInsets.all(5.0),
       content: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: const [
-            Center(
-              child: Text("Nothing Here Yet!"),
-            ),
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: const [
+          Center(
+            child: Text("Nothing Here Yet!"),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -486,23 +495,105 @@ class ConcentrationMode extends StatefulWidget {
 }
 
 class _ConcentrationModeState extends State<ConcentrationMode> {
+  int _currentPage = 0;
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: ToggleSwitch(
-        checked: checked_1,
-        onChanged: (v) => setState(() {
-          checked_1 = v;
-          if (checked_1) {
-            debugPrint("Concentration Mode Activated!");
-          } else {
-            debugPrint("Concentration Mode Deactivated!");
-          }
-        }),
-        content: const Text("Concentration Mode"),
+    return NavigationView(
+      transitionBuilder: (child, animation) =>
+          EntrancePageTransition(animation: animation, child: child),
+      appBar: NavigationAppBar(
+        actions: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ToggleSwitch(
+                checked: checked,
+                onChanged: (v) {
+                  checked = v;
+                  setState(
+                    () {
+                      if (checked && !switched) {
+                        Navigator.pushNamed(context, "/concentrationMode");
+                        switched = !switched;
+                        debugPrint("Concentration Mode Activated!");
+                      } else {
+                        Navigator.of(context)
+                            .popUntil(ModalRoute.withName('/'));
+                        switched = !switched;
+                        debugPrint("Concentration Mode Deactivated!");
+                      }
+                    },
+                  );
+                },
+                content: const Text("Concentration Mode"),
+              ),
+            ),
+          ],
+        ),
       ),
-    ));
+      pane: NavigationPane(
+        selected: _currentPage,
+        displayMode: PaneDisplayMode.compact,
+        onChanged: (i) => setState(() => _currentPage = i),
+        items: <NavigationPaneItem>[
+          PaneItem(
+            icon: const Icon(CupertinoIcons.home),
+            title: const Text("home"),
+            body: const ConcentrationModeHomePage(),
+          ),
+          PaneItem(
+            icon: const Icon(CupertinoIcons.settings),
+            title: const Text("settings"),
+            body: const ConcentrationModeSettingsPage(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ConcentrationModeHomePage extends StatefulWidget {
+  const ConcentrationModeHomePage({super.key});
+
+  @override
+  State<ConcentrationModeHomePage> createState() =>
+      _ConcentrationModeHomePageState();
+}
+
+class _ConcentrationModeHomePageState extends State<ConcentrationModeHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return const ScaffoldPage(
+      content: Text("nothing!"),
+    );
+  }
+}
+
+class ConcentrationModeSettingsPage extends StatefulWidget {
+  const ConcentrationModeSettingsPage({super.key});
+
+  @override
+  State<ConcentrationModeSettingsPage> createState() =>
+      _ConcentrationModeSettingsPageState();
+}
+
+class _ConcentrationModeSettingsPageState
+    extends State<ConcentrationModeSettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    return ScaffoldPage(
+      padding: const EdgeInsets.all(5.0),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: const [
+          Center(
+            child: Text("Nothing Here Yet!"),
+          ),
+        ],
+      ),
+    );
   }
 }

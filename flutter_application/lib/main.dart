@@ -116,7 +116,7 @@ class _FilesPageState extends State<FilesPage> {
                         .map(
                           (task) => ListTile(
                             leading: IconButton(
-                                icon: const Icon(CupertinoIcons.app),
+                                icon: const Icon(CupertinoIcons.capsule),
                                 onPressed: () async {
                                   selectedId = task.id;
                                 }),
@@ -396,35 +396,41 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ToggleSwitch(
-                      checked: checked_1,
-                      onChanged: (v) => setState(() {
-                        checked_1 = v;
-                        if (checked_1) {
-                          debugPrint("Concentration Mode Activated!");
-                        } else {
-                          debugPrint("Concentration Mode Deactivated!");
-                        }
-                      }),
-                      content: const Text("Concentration Mode"),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ToggleSwitch(
+                        checked: checked_1,
+                        onChanged: (v) => setState(() {
+                          checked_1 = v;
+                          if (checked_1) {
+                            debugPrint("Concentration Mode Activated!");
+                          } else {
+                            debugPrint("Concentration Mode Deactivated!");
+                          }
+                        }),
+                        content: const Text("Concentration Mode"),
+                      ),
                     ),
-                    ToggleSwitch(
-                      checked: mode == ThemeMode.dark,
-                      onChanged: (v) {
-                        _notifier.value = mode == ThemeMode.light
-                            ? ThemeMode.dark
-                            : ThemeMode.light;
-                        debugPrint("Theme Has Changed");
-                      },
-                      content: Row(children: [
-                        const Text("Dark Mode"),
-                        const SizedBox(
-                          width: 10.0,
-                        ),
-                        (mode == ThemeMode.dark)
-                            ? const Icon(CupertinoIcons.moon_fill)
-                            : const Icon(CupertinoIcons.sun_max_fill),
-                      ]),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ToggleSwitch(
+                        checked: mode == ThemeMode.dark,
+                        onChanged: (v) {
+                          _notifier.value = mode == ThemeMode.light
+                              ? ThemeMode.dark
+                              : ThemeMode.light;
+                          debugPrint("Theme Has Changed");
+                        },
+                        content: Row(children: [
+                          const Text("Dark Mode"),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
+                          (mode == ThemeMode.dark)
+                              ? const Icon(CupertinoIcons.moon_fill)
+                              : const Icon(CupertinoIcons.sun_max_fill),
+                        ]),
+                      ),
                     ),
                   ],
                 )),
@@ -483,6 +489,8 @@ class _ConcentrationModeState extends State<ConcentrationMode> {
   @override
   Widget build(BuildContext context) {
     return Center(
+        child: Padding(
+      padding: const EdgeInsets.all(10.0),
       child: ToggleSwitch(
         checked: checked_1,
         onChanged: (v) => setState(() {
@@ -495,6 +503,6 @@ class _ConcentrationModeState extends State<ConcentrationMode> {
         }),
         content: const Text("Concentration Mode"),
       ),
-    );
+    ));
   }
 }

@@ -177,7 +177,7 @@ class _FilesPageState extends State<FilesPage> {
       allowMultiple: true,
       dialogTitle: "Pick A File/Files ",
       type: FileType.custom,
-      allowedExtensions: ["exe"],
+      allowedExtensions: ["exe", "apk"],
     );
 
     if (result == null) {

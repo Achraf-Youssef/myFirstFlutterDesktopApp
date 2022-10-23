@@ -18,6 +18,7 @@ const projectId = 'remindini-firebase';
 bool checked = false, switched = false;
 final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<int> _currentIndex = ValueNotifier(0);
+
 class FilesPage extends StatefulWidget {
   const FilesPage({super.key});
 
@@ -274,20 +275,27 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 400.0,
-                    child: ComboBox<String>(
-                      items: list
-                          .map((e) => ComboBoxItem(value: e, child: Text(e)))
-                          .toList(),
-                      value: current,
-                      onChanged: (value) {
-                        setState(() {
-                          current = value as String;
-                        });
-                      },
-                    ),
-                  ),
+                  ValueListenableBuilder<int>(
+                      valueListenable: _currentIndex,
+                      builder:
+                          (BuildContext context, int index, Widget? child) {
+                        return SizedBox(
+                          width: 400.0,
+                          child: ComboBox<String>(
+                            items: list
+                                .map((e) =>
+                                    ComboBoxItem(value: e, child: Text(e)))
+                                .toList(),
+                            value: list[index],
+                            onChanged: (value) {
+                              setState(() {
+                                index = list.indexOf(value!);
+                                _currentIndex.value = index;
+                              });
+                            },
+                          ),
+                        );
+                      }),
                   SizedBox(
                     width: 400.0,
                     child: TextBox(

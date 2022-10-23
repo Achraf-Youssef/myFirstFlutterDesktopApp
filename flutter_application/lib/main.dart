@@ -15,9 +15,10 @@ const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 
 const projectId = 'remindini-firebase';
 
-bool checked = false, switched = false;
+bool switched = false;
 final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<int> _currentIndex = ValueNotifier(0);
+final ValueNotifier<bool> _isChecked = ValueNotifier(false);
 
 class FilesPage extends StatefulWidget {
   const FilesPage({super.key});
@@ -409,30 +410,36 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ToggleSwitch(
-                  checked: checked,
-                  onChanged: (v) {
-                    checked = v;
-                    setState(
-                      () {
-                        if (checked && !switched) {
-                          Navigator.pushNamed(context, "/concentrationMode");
-                          switched = !switched;
-                          debugPrint("Concentration Mode Activated!");
-                        } else {
-                          Navigator.of(context)
-                              .popUntil(ModalRoute.withName('/'));
-                          switched = !switched;
-                          debugPrint("Concentration Mode Deactivated!");
-                        }
-                      },
-                    );
-                  },
-                  content: const Text("Concentration Mode"),
-                ),
-              ),
+              ValueListenableBuilder<bool>(
+              valueListenable: _isChecked,
+              builder: (BuildContext context, bool isOn, Widget? child) {
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ToggleSwitch(
+                    checked: isOn,
+                    onChanged: (v) {
+                      isOn = v;
+                      _isChecked.value = isOn;
+                      setState(
+                        () {
+                          if (isOn && !switched) {
+                            Navigator.pushNamed(context, "/concentrationMode");
+                            switched = !switched;
+                            debugPrint("Concentration Mode Activated!");
+                          } else {
+                            Navigator.of(context)
+                                .popUntil(ModalRoute.withName('/'));
+                            switched = !switched;
+                            debugPrint("Concentration Mode Deactivated!");
+                          }
+                        },
+                      );
+                    },
+                    content: const Text("Concentration Mode"),
+                  ),
+                );
+              },
+            ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: ToggleSwitch(
@@ -520,30 +527,36 @@ class _ConcentrationModeState extends State<ConcentrationMode> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ToggleSwitch(
-                checked: checked,
-                onChanged: (v) {
-                  checked = v;
-                  setState(
-                    () {
-                      if (checked && !switched) {
-                        Navigator.pushNamed(context, "/concentrationMode");
-                        switched = !switched;
-                        debugPrint("Concentration Mode Activated!");
-                      } else {
-                        Navigator.of(context)
-                            .popUntil(ModalRoute.withName('/'));
-                        switched = !switched;
-                        debugPrint("Concentration Mode Deactivated!");
-                      }
+            ValueListenableBuilder<bool>(
+              valueListenable: _isChecked,
+              builder: (BuildContext context, bool isOn, Widget? child) {
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ToggleSwitch(
+                    checked: isOn,
+                    onChanged: (v) {
+                      isOn = v;
+                      _isChecked.value = isOn;
+                      setState(
+                        () {
+                          if (isOn && !switched) {
+                            Navigator.pushNamed(context, "/concentrationMode");
+                            switched = !switched;
+                            debugPrint("Concentration Mode Activated!");
+                          } else {
+                            Navigator.of(context)
+                                .popUntil(ModalRoute.withName('/'));
+                            switched = !switched;
+                            debugPrint("Concentration Mode Deactivated!");
+                          }
+                        },
+                      );
                     },
-                  );
-                },
-                content: const Text("Concentration Mode"),
-              ),
-            ),
+                    content: const Text("Concentration Mode"),
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),

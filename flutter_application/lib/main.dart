@@ -344,7 +344,13 @@ class _HomePageState extends State<HomePage> {
             child: Tooltip(
               message: 'add new task',
               child: Button(
-                onPressed: buttonController.open,
+                onPressed: () {
+                  setState(() {
+                    myTitleController.text = "";
+                    mySubtitleController.text = "";
+                    buttonController.open();
+                  });
+                },
                 style: ButtonStyle(
                   shape: ButtonState.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0))),

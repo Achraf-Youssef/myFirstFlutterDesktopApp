@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:firedart/firedart.dart';
@@ -12,7 +13,6 @@ void main() {
 }
 
 const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
-
 const projectId = 'remindini-firebase';
 
 bool switched = false;
@@ -175,12 +175,23 @@ class _FilesPageState extends State<FilesPage> {
   }
 
   void _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      dialogTitle: "Pick A File/Files ",
-      type: FileType.custom,
-      allowedExtensions: ["exe", "apk"],
-    );
+    FilePickerResult? result;
+    
+    if (Platform.isWindows) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        dialogTitle: "Pick A File/Files ",
+        type: FileType.custom,
+        allowedExtensions: ["exe"],
+      );
+    }else{
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        dialogTitle: "Pick A File/Files ",
+        type: FileType.custom,
+        allowedExtensions: ["apk"],
+      );
+    }
 
     if (result == null) {
       return;
@@ -411,35 +422,36 @@ class _HomeState extends State<Home> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ValueListenableBuilder<bool>(
-              valueListenable: _isChecked,
-              builder: (BuildContext context, bool isOn, Widget? child) {
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: ToggleSwitch(
-                    checked: isOn,
-                    onChanged: (v) {
-                      isOn = v;
-                      _isChecked.value = isOn;
-                      setState(
-                        () {
-                          if (isOn && !switched) {
-                            Navigator.pushNamed(context, "/concentrationMode");
-                            switched = !switched;
-                            debugPrint("Concentration Mode Activated!");
-                          } else {
-                            Navigator.of(context)
-                                .popUntil(ModalRoute.withName('/'));
-                            switched = !switched;
-                            debugPrint("Concentration Mode Deactivated!");
-                          }
-                        },
-                      );
-                    },
-                    content: const Text("Concentration Mode"),
-                  ),
-                );
-              },
-            ),
+                valueListenable: _isChecked,
+                builder: (BuildContext context, bool isOn, Widget? child) {
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ToggleSwitch(
+                      checked: isOn,
+                      onChanged: (v) {
+                        isOn = v;
+                        _isChecked.value = isOn;
+                        setState(
+                          () {
+                            if (isOn && !switched) {
+                              Navigator.pushNamed(
+                                  context, "/concentrationMode");
+                              switched = !switched;
+                              debugPrint("Concentration Mode Activated!");
+                            } else {
+                              Navigator.of(context)
+                                  .popUntil(ModalRoute.withName('/'));
+                              switched = !switched;
+                              debugPrint("Concentration Mode Deactivated!");
+                            }
+                          },
+                        );
+                      },
+                      content: const Text("Concentration Mode"),
+                    ),
+                  );
+                },
+              ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: ToggleSwitch(

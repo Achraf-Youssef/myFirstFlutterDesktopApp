@@ -15,9 +15,9 @@ const apiKey = 'AIzaSyDbcGt9Eso8s-UViE7zIgJZEeCYCe60lMc';
 
 const projectId = 'remindini-firebase';
 
-final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
 bool checked = false, switched = false;
-
+final ValueNotifier<ThemeMode> _notifier = ValueNotifier(ThemeMode.light);
+final ValueNotifier<int> _currentIndex = ValueNotifier(0);
 class FilesPage extends StatefulWidget {
   const FilesPage({super.key});
 
